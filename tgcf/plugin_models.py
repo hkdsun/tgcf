@@ -6,6 +6,7 @@ from watermark import Position
 
 
 class FileType(str, Enum):
+    VOICE = "voice"
     AUDIO = "audio"
     GIF = "gif"
     VIDEO = "video"

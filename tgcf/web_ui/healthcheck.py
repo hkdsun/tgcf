@@ -3,6 +3,7 @@ import socketserver
 import json
 import threading
 import os
+import psutil
 
 class HealthCheck:
     def __init__(self, json_file, port=8504):
@@ -50,6 +51,10 @@ class HealthCheck:
                         if pid == 0:
                             self.send_error(500, 'Pid is 0')
                         else:
+                            if not psutil.pid_exists(pid):
+                                self.send_error(500, 'Pid is not a running process')
+                                return
+                            
                             self.send_response(200)
                             self.send_header('Content-type', 'text/plain')
                             self.end_headers()

@@ -38,6 +38,7 @@ async def new_message_handler(event: Union[Message, events.NewMessage]) -> None:
 
     dest = config.from_to.get(chat_id)
 
+    # TODO: Each from_to could define what plugins it should apply
     tm = await apply_plugins(message)
     if not tm:
         return

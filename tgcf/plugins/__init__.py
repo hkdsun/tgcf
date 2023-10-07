@@ -12,7 +12,7 @@ from typing import Any, Dict
 
 from telethon.tl.custom.message import Message
 
-from tgcf.config import CONFIG
+from tgcf.config import CONFIG, plugin_exemptions
 from tgcf.plugin_models import FileType
 from tgcf.utils import cleanup, stamp
 
@@ -105,6 +105,9 @@ async def apply_plugins(message: Message) -> TgcfMessage:
     tm = TgcfMessage(message)
 
     for _id, plugin in plugins.items():
+        if _id in plugin_exemptions[message.chat_id]:
+            logging.info(f"Plugin {_id} exempted for {message.chat_id}")
+            continue
         try:
             if inspect.iscoroutinefunction(plugin.modify):
                 ntm = await plugin.modify(tm)

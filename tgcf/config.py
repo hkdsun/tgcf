@@ -31,6 +31,7 @@ class Forward(BaseModel):
     dest: List[Union[int, str]] = []
     offset: int = 0
     end: Optional[int] = 0
+    plugin_exemptions: List[str] = []
 
 
 class LiveSettings(BaseModel):
@@ -163,6 +164,27 @@ def get_env_var(name: str, optional: bool = False) -> str:
 async def get_id(client: TelegramClient, peer):
     return await client.get_peer_id(peer)
 
+async def load_plugin_exemptions(
+    client: TelegramClient, forward: List[Forward]
+) -> Dict[int, List[str]]:
+    """Convert a list of Forward objects to a list of plugin exemptions.
+    """
+
+    plugin_exemptions = {}
+
+    async def _(peer):
+        return await get_id(client, peer)
+
+    for fwd in forward:
+        if not fwd.use_this:
+            continue
+        source = fwd.source
+        if type(source) != int and source.strip() == "":
+            continue
+        src = await _(fwd.source)
+        plugin_exemptions[src] = fwd.plugin_exemptions
+    logging.info(f"Plugin exemptions are {plugin_exemptions}")
+    return plugin_exemptions
 
 async def load_from_to(
     client: TelegramClient, forwards: List[Forward]
@@ -255,5 +277,6 @@ if PASSWORD == "tgcf":
         "You have not set a password to protect the web access to tgcf.\nThe default password `tgcf` is used."
     )
 from_to = {}
+plugin_exemptions = {}
 is_bot: Optional[bool] = None
 logging.info("config.py got executed")

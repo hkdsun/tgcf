@@ -160,4 +160,5 @@ async def start_sync() -> None:
             )
         )
     config.from_to = await config.load_from_to(client, config.CONFIG.forwards)
+    config.plugin_exemptions = await config.load_plugin_exemptions(client, config.CONFIG.forwards)
     await client.run_until_disconnected()
